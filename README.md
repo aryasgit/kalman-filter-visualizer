@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kalman Filter · Sensor-Fusion Visualizer
 
-## Getting Started
+> Fuse two noisy sensors into one confident estimate — and watch the uncertainty shrink in real time.
 
-First, run the development server:
+`Next.js` · `TypeScript` · `Vercel` · **[Live demo →](#)**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## What it does
+
+Two sensors report the same moving target, both noisy in different ways. The Kalman filter combines them — plus a motion model — into a single estimate that's better than either sensor alone. The dashboard shows the true path, the raw measurements, and the filtered estimate side by side, with a shaded band showing how confident the filter is at every step.
+
+## The theory worth understanding
+
+A Kalman filter runs a two-step loop:
+
+- **Predict** — use the motion model to guess the next state and *grow* the uncertainty.
+- **Update** — pull the guess toward the new measurement, weighted by the **Kalman gain**.
+
+The gain is the whole story: it's the ratio of how much you trust the model (**process noise Q**) versus the measurement (**measurement noise R**). High gain → chase the sensor. Low gain → trust the model. The **covariance** is the filter's own confidence, and watching it shrink as measurements arrive is the "aha" of the whole thing.
+
+## What the dashboard shows
+
+- True path vs. noisy measurements vs. filtered estimate (live)
+- **Covariance band** — the estimate's confidence envelope
+- **Kalman gain over time** — see it settle
+- Sliders for **Q** and **R** to feel the trust tradeoff
+- **RMSE** metric: filtered vs. raw, to prove it actually helps
+- Toggle: **synthetic data** ↔ a recorded **BARQ** trajectory trace
+
+## Architecture
+
+```
+noisy sensor A ┐
+               ├─→ predict → update (Kalman gain) → estimate + covariance → charts
+motion model ──┘         (all in-browser, TypeScript)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Next.js (App Router) · TypeScript · Plotly for charts. No backend, no API keys — the filter runs client-side.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Run locally
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Caveats & what I learned
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- The filter assumes **linear dynamics and Gaussian noise** — break either and it degrades.
+- **Mistuned Q/R is the #1 failure:** too-low R makes it track noise; too-high R makes it lag reality.
+- Covariance is optimistic — it reflects the *model's* belief, not ground truth. If the model is wrong, the filter is confidently wrong.
+- The one-liner: *"I built it to watch the covariance shrink as the filter learns to trust its model."*
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Author: **Aryaman**
