@@ -2,7 +2,7 @@
 
 > Fuse two noisy sensors into one confident estimate — and watch the uncertainty shrink in real time.
 
-`Next.js` · `TypeScript` · `Vercel` · **[Live demo →](#)**
+`Next.js` · `TypeScript` · `Vercel` · **[Live demo →](https://kalman-filter-visualizer.vercel.app)**
 
 ## What it does
 
